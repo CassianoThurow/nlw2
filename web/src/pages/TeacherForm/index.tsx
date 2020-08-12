@@ -1,13 +1,18 @@
 import React, { useState, FormEvent,  } from "react";
+import {useHistory} from "react-router-dom"
 import PageHeader from "../../components/PageHeader";
 import Input from "../../components/Input"
 import Textarea from "../../components/Textarea"
 import Select from "../../components/Select"
 import warningIcon from "../../assets/images/icons/warning.svg"
+import api from "../../services/api";
 import './style.css'
 
 
+
 function TeacherForm() {
+
+  const history = useHistory();
 
   const [name, setName] = useState('');
   const [avatar, setAvatar] = useState('');
@@ -56,12 +61,24 @@ function TeacherForm() {
 
   function handleCreateClass(e: FormEvent){
     e.preventDefault();
-    console.log({
+
+    api.post('classes',{
       name,
       avatar,
+      whatsapp,
       bio,
       subject,
-      cost
+      cost: Number(cost),
+      schedule:scheduleItems
+    }).then(()=>{
+      alert('Cadastro efetuado com sucesso!')
+      history.push('/')
+    }).catch(()=>{
+      alert('Erro no cadastro')
+    })
+
+    console.log({
+      
     })
   }
 
@@ -127,7 +144,8 @@ function TeacherForm() {
       <Select 
       name="week_day" 
       label="Dia da semana"
-      onChange={e =>setScheduleValue(index, 'week_day', e.target.value)}
+      onChange={e => setScheduleValue(index, 'week_day', e.target.value)}
+      value={scheduleItem.week_day}
       options={[
         {value: '0', label: 'Domingo'},
         {value: '1', label: 'Segunda-feira'},
@@ -138,14 +156,21 @@ function TeacherForm() {
         {value: '6', label: 'Sábado'},
       ]}
       />
-      <Input name="from" label="Das" type="time"/>
-      <Input name="to" label="Até" type="time"/>
+      <Input name="from" label="Das" type="time"
+      value={scheduleItem.from}
+      onChange={e => setScheduleValue(index, 'from', e.target.value)} 
+      />
+      <Input name="to" label="Até" type="time"
+      onChange={e => setScheduleValue(index, 'to', e.target.value)}
+      value={scheduleItem.to}
+
+      />
       </div>
         )
       })}
 
     </fieldset>
-    </form>
+    
     <footer>
       <p> 
         <img src={warningIcon} alt="Aviso importante"/>
@@ -156,6 +181,7 @@ function TeacherForm() {
         Salvar cadastro
       </button>
     </footer>
+    </form>
     </main>
 
     </div>
